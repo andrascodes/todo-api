@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/andrewszucs/todo-api/issues"
   },
-  "homepage": "https://github.com/andrewszucs/todo-api#readme"
+  "homepage": "https://github.com/andrewszucs/todo-api#readme",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
 }
