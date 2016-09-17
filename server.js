@@ -1,27 +1,20 @@
 'use strict';
 
 const express = require('express');
+const bodyParser = require('body-parser');
+const _ = require('underscore');
+
 const middleware = require('./middleware.js');
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-const todos = [{
-    id: 1,
-    description: "Meet mom for lunch",
-    completed: false
-}, {
-    id: 2,
-    description: 'Go to market',
-    completed: false
-},{
-    id: 3,
-    description: 'Do logger without DB',
-    completed: true
-}];
+const todos = [];
+let todoNextId = 1;
 
 app.use(middleware.logger);
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     res.send('Todo API Root');
@@ -41,6 +34,21 @@ app.get('/todos/:id', (req, res) => {
     }
     else {
         res.json( selectedById );
+    }
+});
+
+app.post('/todos', (req, res) => {
+    const body = req.body;
+
+    if(_.isEmpty(body)) {
+        res.status(404).send();
+    }
+    else {
+        body.id = todoNextId;
+        todoNextId++;
+        todos.push(body);
+
+        res.json(body);
     }
 });
 
