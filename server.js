@@ -25,7 +25,7 @@ app.get('/todos', (req, res) => {
 });
 
 app.get('/todos/:id', (req, res) => {
-    const selectedById = todos.filter(item => { 
+    const selectedById = todos.find(item => { 
         return item.id === parseInt(req.params.id, 10);
     });
 
@@ -38,18 +38,43 @@ app.get('/todos/:id', (req, res) => {
 });
 
 app.post('/todos', (req, res) => {
-    const body = req.body;
+    const body = _.pick(req.body, 'description', 'completed');
 
+    // Validate request body
+    //  'body.description.trim().length === 0': 
+    //      if string is nothing but spaces OR
+    //      if string is simply an empty string
     if(_.isEmpty(body)) {
-        res.status(404).send();
+        const error = {
+            error: 'Request body was empty.'
+        }
+        return res.status(400).json(error);
     }
-    else {
-        body.id = todoNextId;
-        todoNextId++;
-        todos.push(body);
-
-        res.json(body);
+    else if(!_.isBoolean(body.completed)) {
+        const error = {
+            error: `The request body doesn't have a 'completed' property or it's not a boolean.`
+        }
+        return res.status(400).json(error);
     }
+    else if(!_.isString(body.description)) {
+        const error = {
+            error: `The request body doesn't have a 'description' property or it's not a string.`
+        }
+        return res.status(400).json(error);
+    }
+    else if(body.description.trim().length === 0) {
+        const error = {
+            error: `The request body's 'description' property is empty.`
+        }
+        return res.status(400).json(error);
+    }
+    // if there is no error: SAVE/PERSIST the todo
+    // remove trailing spaces from the description
+    body.description = body.description.trim();
+    body.id = todoNextId;
+    todoNextId++;
+    todos.push(body);
+    res.json(body);
 });
 
 app.listen(PORT, () => {
