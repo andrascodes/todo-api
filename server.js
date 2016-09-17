@@ -58,6 +58,18 @@ app.get('/todos', (req, res) => {
             res.status(400).send();
         }
     }
+    
+    if(queryParams.hasOwnProperty('q')) {
+        const searchString = queryParams.q.trim().toLowerCase();
+        if(searchString.length > 0) {
+            filteredTodos = filteredTodos.filter(item => {
+                return item.description.toLowerCase().indexOf(searchString) >= 0;
+            });
+        }
+        else {
+            res.status(400).send();
+        }
+    }
 
     res.json(filteredTodos);
 });
