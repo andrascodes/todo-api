@@ -22,8 +22,44 @@ app.get('/', (req, res) => {
 });
 
 // GET /todos
+// GET /todos?completed=true
 app.get('/todos', (req, res) => {
-    res.json(todos);
+    const queryParams = req.query;
+    let filteredTodos = todos;
+
+    function parseStringToBoolean(stringValue) {
+        if(typeof stringValue !== 'string') {
+            return undefined;
+        }
+        else if(stringValue === 'true') {
+            return true;
+        }
+        else if(stringValue === 'false') {
+            return false;
+        }
+        else {
+            return undefined;
+        }
+    }
+
+    if(queryParams.hasOwnProperty('completed')) {
+        const booleanValue = parseStringToBoolean(queryParams.completed);
+        if(booleanValue === true) {
+            filteredTodos = filteredTodos.filter(item => {
+                return item.completed === true;
+            });
+        }
+        else if(booleanValue === false) {
+            filteredTodos = filteredTodos.filter(item => {
+                return item.completed === false;
+            });
+        }
+        else {
+            res.status(400).send();
+        }
+    }
+
+    res.json(filteredTodos);
 });
 
 // GET /todos/:id
