@@ -98,6 +98,43 @@ app.delete('/todos/:id', (req, res) => {
     }
 });
 
+// PUT /todos/:id
+app.put('/todos/:id', (req, res) => {
+    let selectedById = todos.find(item => { 
+        return item.id === parseInt(req.params.id, 10);
+    });
+    const body = _.pick(req.body, 'description', 'completed');
+    const validAttributes = {};
+    
+    if(!selectedById) {
+        return res.status(404).json({
+            error: 'No todo found with that id.'
+        });
+    }
+
+    // Validate 'completed'
+    if(body.hasOwnProperty('completed')) {
+        if(_.isBoolean(body.completed)) {
+            validAttributes.completed = body.completed;
+        }
+        else {
+            return res.status(400).send();
+        }
+    }
+    // Validate 'description'
+    if(body.hasOwnProperty('description')) {
+        if(_.isString(body.description) && !body.description.trim().length === 0) {
+            validAttributes.description = body.description;
+        }
+        else {
+            return res.status(400).send();
+        }
+    }
+
+    selectedById = _.extend(selectedById, validAttributes);
+    res.json( selectedById );
+});
+
 app.listen(PORT, () => {
     console.log(`Express app listening on PORT ${PORT}...`);
 });
